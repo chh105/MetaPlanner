@@ -11,7 +11,7 @@ def visualize_dose_distribution(sample_case_num = None,
                                 data_parent_dir = './clean_prostate_data/isodose/usable/',
                                 results_dir = '',
                                 weights = None,
-                                high_res = False,
+                                high_res = True,
                                 vmat = False,
                                 vmat_traj_dir = ''):
 

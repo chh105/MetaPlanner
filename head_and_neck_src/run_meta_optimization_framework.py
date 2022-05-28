@@ -598,7 +598,7 @@ if __name__ == "__main__":
     '''
     Run meta-optimization framework
     '''
-    data_dir = './head_and_neck_data/usable/'
+    data_dir = './head_and_neck_data/'
     meta_optimization_results_dir = './meta_optimization_results/'
     bao_results_dir = './coplanar_bao_results/'
 

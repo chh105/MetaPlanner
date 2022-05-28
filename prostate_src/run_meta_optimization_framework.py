@@ -659,15 +659,15 @@ if __name__ == "__main__":
     '''
     Run meta-optimization framework
     '''
-    data_dir = './clean_prostate_data/isodose/usable/'
+    data_dir = './prostate_data/'
     meta_optimization_results_dir = './meta_optimization_results/'
     bao_results_dir = './coplanar_bao_results/'
 
 
 
-    # '''get meta-optimized weights'''
-    # get_meta_optimized_weights(data_parent_dir=data_dir,
-    #                            output_directory=meta_optimization_results_dir)
+    '''get meta-optimized weights'''
+    get_meta_optimized_weights(data_parent_dir=data_dir,
+                               output_directory=meta_optimization_results_dir)
 
     # '''run 2 arc vmat'''
     # load_vmat_data_and_make_plots(meta_optimization_results_dir = meta_optimization_results_dir,

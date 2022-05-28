@@ -26,12 +26,14 @@ Basic Examples:
 Begin by storing your CT dicoms and RtSt dicoms into the following structure:
 
 	.
-	├── /head_and_neck_src                    
-	│   ├── /CT/                    
-	│   ├── /RTst/
-	├── /prostate_src                    
-	│   ├── /CT/                    
-	│   ├── /RTst/
+	├── /head_and_neck_src
+	│   ├── /head_and_neck_data/                    
+	│   ├──   ├── /CT/                    
+	│   ├──   ├── /RTst/
+	├── /prostate_src
+	│   ├── /prostate_data/                    
+	│   ├──   ├── /CT/                    
+	│   ├──   ├── /RTst/
 	└── ...
 
 To run automated planning, simply modify and run [this](https://github.com/chh105/MetaPlanner/blob/main/head_and_neck_src/run_meta_optimization_framework.py) script for head and neck data, or [this](https://github.com/chh105/MetaPlanner/blob/main/prostate_src/run_meta_optimization_framework.py) script for prostate data.

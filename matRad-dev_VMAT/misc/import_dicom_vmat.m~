@@ -1,4 +1,4 @@
-function [ct, cst, pln, stf, dij] = import_dicom_vmat( ctDir, rtStDir, mm_resolution, bixel_width, dicomMetaBool, useDoseGrid )
+function [ct, cst, pln, stf, dij] = import_dicom_vmat( ctDir, rtStDir, mm_resolution, bixel_width, numOfFractions, dicomMetaBool, useDoseGrid )
 % matRad wrapper function to import a predefined set of dicom files into
 % matRad's native data formats
 % 
@@ -62,6 +62,10 @@ end
 %
 if ~exist('bixel_width','var')
     bixel_width = 5;
+end
+%
+if ~exist('numOfFractions','var')
+    numOfFractions = 40;
 end
 
 
@@ -174,7 +178,7 @@ else
     pln.radiationMode   = 'photons';     % either photons / protons / carbon
     pln.machine         = 'Generic';
 
-    pln.numOfFractions  = 40;
+    pln.numOfFractions  = numOfFractions;
 
     % beam geometry settings
     pln.propStf.bixelWidth      = bixel_width; % [mm] / also corresponds to lateral spot spacing for particles
@@ -207,16 +211,27 @@ else
     pln.propOpt.runDAO = true;
     pln.propOpt.runSequencing = true;
     pln.propOpt.preconditioner = true;
-    pln.propOpt.numLevels = 7;
+    pln.propOpt.numLevels = 15;
 
-    pln.propOpt.VMAToptions.machineConstraintFile = [pln.radiationMode '_' pln.machine];
-    pln.propOpt.VMAToptions.continuousAperture = true;
+    pln.propOpt.VMAToptions.machineConstraintFile = [pln.radiationMode '_' pln.machine];   
+    
+%     % for continuous vmat     
+%     pln.propOpt.VMAToptions.continuousAperture = true;
+% 
+%     pln.propOpt.VMAToptions.startingAngle = -180;
+%     pln.propOpt.VMAToptions.finishingAngle = 180;
+%     pln.propOpt.VMAToptions.maxGantryAngleSpacing = 6;      % Max gantry angle spacing for dose calculation
+%     pln.propOpt.VMAToptions.maxDAOGantryAngleSpacing = 6;      % Max gantry angle spacing for DAO
+%     pln.propOpt.VMAToptions.maxFMOGantryAngleSpacing = 48;      % Max gantry angle spacing for FMO
+      
+    % for discrete vmat     
+    pln.propOpt.VMAToptions.continuousAperture = false;
 
     pln.propOpt.VMAToptions.startingAngle = -180;
     pln.propOpt.VMAToptions.finishingAngle = 180;
-    pln.propOpt.VMAToptions.maxGantryAngleSpacing = 3;      % Max gantry angle spacing for dose calculation
-    pln.propOpt.VMAToptions.maxDAOGantryAngleSpacing = 4;      % Max gantry angle spacing for DAO
-    pln.propOpt.VMAToptions.maxFMOGantryAngleSpacing = 36;      % Max gantry angle spacing for FMO
+    pln.propOpt.VMAToptions.maxGantryAngleSpacing = 2;      % Max gantry angle spacing for dose calculation
+    pln.propOpt.VMAToptions.maxDAOGantryAngleSpacing = 2;      % Max gantry angle spacing for DAO
+    pln.propOpt.VMAToptions.maxFMOGantryAngleSpacing = 48;      % Max gantry angle spacing for FMO
 
     pln = matRad_VMATGantryAngles(pln,cst,ct);
 end

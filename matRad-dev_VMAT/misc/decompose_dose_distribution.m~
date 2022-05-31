@@ -1,0 +1,4 @@
+% recompute dij
+run_dose_calc_gym
+
+result. = compute_dose_contribution(cpToKeep,dij,resultGUI,pln);

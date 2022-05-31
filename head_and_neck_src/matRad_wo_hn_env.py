@@ -162,7 +162,7 @@ class MatRadWeightedOpt(gym.Env):
         self.set_ids()
 
         self.eng.eval('pln.numOfFractions = '+str(NUM_FRACTIONS)+';', nargout=0)
-        self.eng.eval('stf = matRad_generateStf(ct,cst,pln);;', nargout=0)
+        self.eng.eval('stf = matRad_generateStf(ct,cst,pln);', nargout=0)
         self.create_ts_structures()
         self.checklist = copy.deepcopy(self.adjusted_ids)
 
@@ -208,7 +208,7 @@ class MatRadWeightedOpt(gym.Env):
         self.set_ids()
 
         self.eng.eval('pln.numOfFractions = '+str(NUM_FRACTIONS)+';', nargout=0)
-        self.eng.eval('stf = matRad_generateStf(ct,cst,pln);;', nargout=0)
+        self.eng.eval('stf = matRad_generateStf(ct,cst,pln);', nargout=0)
         self.create_ts_structures()
         self.checklist = copy.deepcopy(self.adjusted_ids)
 
@@ -223,12 +223,19 @@ class MatRadWeightedOpt(gym.Env):
 
         if additional_vmat_couch_angles:
             assert len(additional_vmat_couch_angles) == len(additional_vmat_gantry_angles)
+            dao_spacing = int(self.eng.eval('pln.propOpt.VMAToptions.maxDAOGantryAngleSpacing',nargout=1))
+            gantry_spacing = int(self.eng.eval('pln.propOpt.VMAToptions.maxGantryAngleSpacing',nargout=1))
+            fmo_spacing = int(self.eng.eval('pln.propOpt.VMAToptions.maxFMOGantryAngleSpacing',nargout=1))
+            offset_dao = dao_spacing//2
+            offset_gantry = gantry_spacing//2
+            offset_fmo = fmo_spacing//2
+            offset = offset_dao
             for i in range(len(additional_vmat_couch_angles)):
                 self.eng.eval('pln.propStf.couchAngles(end+1) = '+str(additional_vmat_couch_angles[i])+';',nargout=0)
-                self.eng.eval('pln.propStf.gantryAngles(end+1) = '+str(additional_vmat_gantry_angles[i])+';',nargout=0)
-                self.eng.eval('pln.propStf.DAOGantryAngles(end+1) = '+str(additional_vmat_gantry_angles[i])+';',nargout=0)
+                self.eng.eval('pln.propStf.gantryAngles(end+1) = '+str(additional_vmat_gantry_angles[i]+offset)+';',nargout=0)
+                self.eng.eval('pln.propStf.DAOGantryAngles(end+1) = '+str(additional_vmat_gantry_angles[i]+offset)+';',nargout=0)
             for i in range(len(additional_fmo_angles)):
-                self.eng.eval('pln.propStf.FMOGantryAngles(end+1) = '+str(additional_fmo_angles[i])+';',nargout=0)
+                self.eng.eval('pln.propStf.FMOGantryAngles(end+1) = '+str(additional_fmo_angles[i]+offset)+';',nargout=0)
 
             self.eng.eval('pln.propStf.numOfBeams = numel(pln.propStf.gantryAngles);',nargout=0)
             self.eng.eval('pln.propStf.isoCenter = ones(pln.propStf.numOfBeams,1) * matRad_getIsoCenter(cst,ct,0);',nargout=0)
@@ -677,7 +684,7 @@ class MatRadWeightedOpt(gym.Env):
         print('R90 from plan:', r90_val)
         return r50_val, r90_val
 
-    def get_ptv_stats_from_treatment_plan(self, ctDir, rtStDir, rtDoseDir):
+    def get_ptv_stats_from_treatment_plan(self, ctDir, rtStDir, rtDoseDir, num_fracs = NUM_FRACTIONS):
         self.eng = matlab.engine.start_matlab()
         # self.eng.eval('cd ' + os.environ['matRad'],nargout=0)
         self.eng.eval('addpath(genpath("' + os.environ['matRad'] + '"));')
@@ -688,7 +695,7 @@ class MatRadWeightedOpt(gym.Env):
         self.eng.eval('rtDoseDir = "' + rtDoseDir + '";', nargout=0)
         self.eng.eval(
             '[ct, cst, pln, stf, resultGUI] = import_dicom_return_stf_and_result_gui( ctDir, rtStDir, rtDoseDir, 3.5, 5, '\
-            + str(NUM_FRACTIONS) + ');',
+            + str(num_fracs) + ');',
             nargout=0)
         self.remove_unwanted_structs()
         self.checklist = list(np.arange(len(self.constr_dict['name_list'])))

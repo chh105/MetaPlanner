@@ -1,7 +1,6 @@
 from matRad_wo_prostate_env import *
 from meta_opt_prostate_env import *
 from bao_prostate_env import *
-from nonuniform_sampling_prostate_env import *
 import numpy as np
 import os
 import glob
@@ -665,9 +664,9 @@ if __name__ == "__main__":
 
 
 
-    '''get meta-optimized weights'''
-    get_meta_optimized_weights(data_parent_dir=data_dir,
-                               output_directory=meta_optimization_results_dir)
+    # '''get meta-optimized weights'''
+    # get_meta_optimized_weights(data_parent_dir=data_dir,
+    #                            output_directory=meta_optimization_results_dir)
 
     # '''run 2 arc vmat'''
     # load_vmat_data_and_make_plots(meta_optimization_results_dir = meta_optimization_results_dir,
@@ -683,4 +682,13 @@ if __name__ == "__main__":
     #                          output_directory = 'dvhs_and_stats/equispaced_coplanar')
     #
     #
+    # '''run sport'''
+    # run_nonuniform_sampling_coplanar(data_dir,
+    #                                  bao_results_dir,
+    #                                  output_directory = './sport_trajectory_results')
+    # load_vmat_data_and_make_plots(meta_optimization_results_dir = meta_optimization_results_dir,
+    #                               trajectory_directory = './sport_trajectory_results',
+    #                               data_parent_dir = data_dir,
+    #                               output_directory = 'dvhs_and_stats/sport',
+    #                               high_res=True)
     # ''''''

@@ -1,4 +1,4 @@
-function [ct, cst, pln, stf] = import_dicom_with_predefined_angles( ctDir, rtStDir, couchAngles, gantryAngles, mm_resolution, bixel_width, dicomMetaBool, useDoseGrid )
+function [ct, cst, pln, stf] = import_dicom_with_predefined_angles( ctDir, rtStDir, couchAngles, gantryAngles, mm_resolution, bixel_width, numOfFractions, dicomMetaBool, useDoseGrid )
 % matRad wrapper function to import a predefined set of dicom files into
 % matRad's native data formats
 % 
@@ -66,6 +66,10 @@ end
 %
 if ~exist('bixel_width','var')
     bixel_width = 7;
+end
+%
+if ~exist('numOfFractions','var')
+    numOfFractions = 40;
 end
 
 [ files.ct, ctPatientList ] = matRad_scanDicomImportFolder( ctDir );
@@ -177,7 +181,7 @@ else
     pln.radiationMode   = 'photons';     % either photons / protons / carbon
     pln.machine         = 'Generic';
 
-    pln.numOfFractions  = 40;
+    pln.numOfFractions  = numOfFractions;
 
     % beam geometry settings
     pln.propStf.bixelWidth      = bixel_width; % [mm] / also corresponds to lateral spot spacing for particles

@@ -138,11 +138,10 @@ for i = 1:numOfBeams
     %levels if number of apertures is lower than required
     notFinished = 1;
     numOfLevels = pln.propOpt.numLevels;
-%     max_seq_iters = 5;
-    seq_iter = 0;
+    max_seq_iters = 5;
+    seq_iter =
     
     while notFinished
-        seq_iter = seq_iter+1;
         % Keep looping until we have at least as many apertures as
         % numToKeep. Increment numOfLevels by 1 each iteration
         
@@ -192,7 +191,7 @@ for i = 1:numOfBeams
         end
         
         %are there enough apertures?
-        if numToKeep ~= 0 && k < numToKeep 
+        if numToKeep ~= 0 && k < numToKeep
             % no, therefore increment numOfLevels
             numOfLevels = numOfLevels+1;
         else

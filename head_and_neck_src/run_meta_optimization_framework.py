@@ -194,8 +194,8 @@ def run_nonuniform_sampling_coplanar(data_parent_dir,
                                     output_directory,
                                     vmat_starting_angle = [0,-180], # [couch,gantry]
                                     vmat_ending_angle = [0,180], # [couch,gantry]
-                                    partial_arc_degrees = 32,
-                                    vmat_control_point_spacing = 4):
+                                    partial_arc_degrees = 36,
+                                    vmat_control_point_spacing = 6):
     memory = 12000000000 * 9
     object_store_memory = 2500000000 * 8
     ray.init(memory=memory, object_store_memory=object_store_memory, ignore_reinit_error=True, log_to_driver=False)
@@ -625,4 +625,12 @@ if __name__ == "__main__":
     #
     # ''''''
 
-
+    # '''run sport'''
+    # run_nonuniform_sampling_coplanar(data_dir,
+    #                                  bao_results_dir,
+    #                                  output_directory = './sport_trajectory_results')
+    # load_vmat_data_and_make_plots(meta_optimization_results_dir = meta_optimization_results_dir,
+    #                               trajectory_directory = './sport_trajectory_results',
+    #                               data_parent_dir = data_dir,
+    #                               output_directory = 'dvhs_and_stats/sport',
+    #                               high_res=True)

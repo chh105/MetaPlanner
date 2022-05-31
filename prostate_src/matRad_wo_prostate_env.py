@@ -27,6 +27,7 @@ HI_RANGE = [5,8]
 R90_RANGE = [1.1,1.5]
 R50_RANGE = [3.5,4.5]
 
+NUM_FRACTIONS = 40
 NUM_STRUCTURES = 6 # not including automatically generated structures
 # MAX_DOSES = [82,82,50,50,82,5,74]
 MAX_DOSES = [30,20,15,15,82,4]
@@ -135,6 +136,7 @@ class MatRadWeightedOpt(gym.Env):
         self.checklist = list(np.arange(len(self.constr_dict['name_list'])))
         self.set_ids()
 
+        self.eng.eval('pln.numOfFractions = '+str(NUM_FRACTIONS)+';', nargout=0)
         self._set_all_structure_priorities(priority=np.max(np.array(self.constr_dict['priority_list'])) + 1)
 
         self._construct_objectives_and_constraints(checklist=self.checklist)
@@ -179,6 +181,7 @@ class MatRadWeightedOpt(gym.Env):
         self.checklist = list(np.arange(len(self.constr_dict['name_list'])))
         self.set_ids()
 
+        self.eng.eval('pln.numOfFractions = '+str(NUM_FRACTIONS)+';', nargout=0)
         self._set_all_structure_priorities(priority=np.max(np.array(self.constr_dict['priority_list'])) + 1)
 
         self._construct_objectives_and_constraints(checklist=self.checklist)
@@ -581,7 +584,7 @@ class MatRadWeightedOpt(gym.Env):
         print('R90 from plan:', r90_val)
         return r50_val, r90_val
 
-    def get_ptv_stats_from_treatment_plan(self, ctDir, rtStDir, rtDoseDir):
+    def get_ptv_stats_from_treatment_plan(self, ctDir, rtStDir, rtDoseDir, num_fracs = NUM_FRACTIONS):
         self.eng = matlab.engine.start_matlab()
         # self.eng.eval('cd ' + os.environ['matRad'],nargout=0)
         self.eng.eval('addpath(genpath("' + os.environ['matRad'] + '"));')
@@ -591,7 +594,8 @@ class MatRadWeightedOpt(gym.Env):
         self.eng.eval('rtStDir = "' + rtStDir + '";', nargout=0)
         self.eng.eval('rtDoseDir = "' + rtDoseDir + '";', nargout=0)
         self.eng.eval(
-            '[ct, cst, pln, stf, resultGUI] = import_dicom_return_stf_and_result_gui( ctDir, rtStDir, rtDoseDir);',
+            '[ct, cst, pln, stf, resultGUI] = import_dicom_return_stf_and_result_gui( ctDir, rtStDir, rtDoseDir, 3.5, 5, ' \
+            + str(num_fracs) + ');',
             nargout=0)
         struct_num_list = self._return_struct_num_list(self.constr_dict['name_list'])
         print('Struct_num_list: ', struct_num_list)

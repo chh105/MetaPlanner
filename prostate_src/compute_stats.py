@@ -127,10 +127,10 @@ def load_data_and_make_tables(method_a_path = './results_all_algos_pops_paper_ed
 
     ''''''
     import pandas as pd
-    control_point_list = [2,20,40,60,80,98]
+    control_point_list = [2,20,40,60,80,95]
     num_oars = 6
     num_fractions = 40
-    normalized_dose = 74
+    normalized_dose = 72
     ptv_index = 4
     data_dict = {}
 
@@ -257,13 +257,11 @@ def load_data_and_make_tables(method_a_path = './results_all_algos_pops_paper_ed
         else:
             w_struct_means[struct], p_struct_means[struct] = wilcoxon(d_struct_means)
 
-    np.set_printoptions(precision = 5,suppress = True)
-    print('"Structure means" P-val:',p_struct_means)
 
-    d_ci = np.round(np.array(method_b_ci),decimals=2)-np.round(np.array(method_a_ci),decimals=2)
-    d_hi = np.round(np.array(method_b_hi),decimals=2)-np.round(np.array(method_a_hi),decimals=2)
-    d_r90 = np.round(np.array(method_b_r90),decimals=2)-np.round(np.array(method_a_r90),decimals=2)
-    d_r50 = np.round(np.array(method_b_r50),decimals=2)-np.round(np.array(method_a_r50),decimals=2)
+    d_ci = np.round(np.array(method_b_ci),decimals=3)-np.round(np.array(method_a_ci),decimals=3)
+    d_hi = np.round(np.array(method_b_hi),decimals=3)-np.round(np.array(method_a_hi),decimals=3)
+    d_r90 = np.round(np.array(method_b_r90),decimals=3)-np.round(np.array(method_a_r90),decimals=3)
+    d_r50 = np.round(np.array(method_b_r50),decimals=3)-np.round(np.array(method_a_r50),decimals=3)
     if np.max(np.abs(d_ci))==0:
         w_ci = np.nan
         p_ci = np.nan
@@ -288,22 +286,26 @@ def load_data_and_make_tables(method_a_path = './results_all_algos_pops_paper_ed
     else:
         w_r50, p_r50 = wilcoxon(d_r50)
 
-    p_vals = list(np.ravel(wilcoxon_test[:,:,1]))[:-2] + [p_ci] + [p_hi]
-    print('Oar P-vals:',wilcoxon_test[:,:,1])
+
+    p_val_ptv_d95 = wilcoxon_test[4,-1,1]
+
+    np.set_printoptions(precision = 5,suppress = True)
+    oar_mean_pvals = p_struct_means
+    num_oars = len(oar_mean_pvals)
+    p_vals = list(np.ravel(oar_mean_pvals)) + [p_ci,p_hi, p_r90, p_r50]
+    reject, corrected_p_vals, alpha_s, alpha_b = sm.stats.multipletests(p_vals, method='fdr_bh')
+    oar_mean_pvals = corrected_p_vals[:num_oars]
+    p_ci = corrected_p_vals[num_oars]
+    p_hi = corrected_p_vals[num_oars + 1]
+    p_r90 = corrected_p_vals[num_oars + 2]
+    p_r50 = corrected_p_vals[num_oars + 3]
+
+    # print('Oar P-vals:',wilcoxon_test[:,:,1])
+    print('"Structure means" P-val:',oar_mean_pvals)
     print('CI P-val:',p_ci)
     print('HI P-val:',p_hi)
     print('R90 P-val:',p_r90)
     print('R50 P-val:',p_r50)
-    reject, corrected_p_vals, alpha_s, alpha_b = sm.stats.multipletests(p_vals,method = 'fdr_bh')
-
-    oar_p_vals = np.reshape(np.concatenate([corrected_p_vals[:-2],[np.nan]*2]),
-                           (num_oars,len(control_point_list)))
-    oar_reject = np.reshape(np.concatenate([reject[:-2],[np.nan]*2]),
-                           (num_oars,len(control_point_list)))
-    ci_p_val = corrected_p_vals[-2]
-    ci_reject = reject[-2]
-    hi_p_val = corrected_p_vals[-1]
-    hi_reject = reject[-1]
 
 
     # np.set_printoptions(precision = 2,suppress = True)
@@ -383,10 +385,10 @@ def compare_dvhs_and_stats(method_a_path = './hi_5_multiobj_results/coplanar_plo
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
     import pandas as pd
-    control_point_list = [2,20,40,60,80,98]
+    control_point_list = [2,20,40,60,80,95]
     num_oars = 6
     num_fractions = 40
-    normalized_dose = 74
+    normalized_dose = 72
     target_homogeneity = 1.05
     ptv_index = 4
     data_dict = {}
@@ -579,27 +581,70 @@ def compare_dvhs_and_stats(method_a_path = './hi_5_multiobj_results/coplanar_plo
         method_b_mean_std = [[np.round(method_b_dvh_means[i,j],num_decimals),np.round(method_b_dvh_stds[i,j],num_decimals)] for j in range(method_b_dvh_means.shape[1])]
         print('\t'.join('{} ({})'.format(x[0],x[1]) for x in method_b_mean_std))
 
+def draw_boosted_vmat_arcs(sample_case_num,
+                           data_parent_dir,
+                           vmat_traj_dir,
+                           partial_arc_size = 24,
+                           inner_radius = 1,
+                           outer_radius = 1.1):
+    '''
+    function only supports coplanar planning
+    '''
+    boosted_angles_path = os.path.join('./',vmat_traj_dir,'vmat_trajectory_dict_for_case_num_'+str(sample_case_num)+'.npy')
+    traj_dict = np.load(boosted_angles_path,allow_pickle = True).item()
+    couch_angles = traj_dict['vmat_fmo_couch_angles']
+    gantry_angles = traj_dict['vmat_fmo_gantry_angles']
+    print('Couch angles where partial arcs are added:',couch_angles)
+    print('Gantry angles where partial arcs are added:',gantry_angles)
+
+    x_coord = lambda theta, r: r*np.cos(theta)
+    y_coord = lambda theta, r: r*np.sin(theta)
+    plt.style.use('dark_background')
+    figure, axes = plt.subplots(1)
+    axes.set_aspect(1)
+    thetas = np.radians(np.linspace(-180,180,200))
+    inner_xs = [x_coord(theta,inner_radius) for theta in thetas]
+    inner_ys = [y_coord(theta,inner_radius) for theta in thetas]
+    axes.plot(inner_xs,inner_ys,'w')
+
+    for arc_num in range(len(gantry_angles)):
+        thetas = np.radians(np.linspace(gantry_angles[arc_num]-partial_arc_size//2,gantry_angles[arc_num]+partial_arc_size//2,200))
+        outer_xs = [x_coord(theta,outer_radius) for theta in thetas]
+        outer_ys = [y_coord(theta,outer_radius) for theta in thetas]
+        axes.plot(outer_xs,outer_ys,'w-')
+
+    plt.show()
+
+
 if __name__ == "__main__":
 
     '''set case number'''
-    case_num = 0
+    case_num = 8
 
     # '''visualize imrt'''
-    # visualize_dose_distribution(sample_case_num = case_num,
+    # env = visualize_dose_distribution(sample_case_num = case_num,
     #                             data_parent_dir = './clean_prostate_data/isodose/usable/',
     #                             results_dir = './meta_optimization_results/',
     #                             high_res = True,
     #                             vmat = False)
 
-    # '''visualize vmat'''
-    # visualize_dose_distribution(sample_case_num = case_num,
+    '''visualize vmat'''
+    env = visualize_dose_distribution(sample_case_num = case_num,
+                                data_parent_dir = './clean_prostate_data/isodose/usable/',
+                                results_dir = './meta_optimization_results/',
+                                high_res = True,
+                                vmat = True)
+
+    # '''visualize sport'''
+    # env = visualize_dose_distribution(sample_case_num = case_num,
     #                             data_parent_dir = './clean_prostate_data/isodose/usable/',
     #                             results_dir = './meta_optimization_results/',
+    #                             vmat_traj_dir='./sport_trajectory_results/',
     #                             high_res = True,
     #                             vmat = True)
 
     # '''visualize manual'''
-    # visualize_manual_dose_distribution(sample_case_num = case_num,
+    # env = visualize_manual_dose_distribution(sample_case_num = case_num,
     #                             data_parent_dir = './clean_prostate_data/isodose/usable/')
 
     # '''compare vmat vs manual'''
@@ -628,15 +673,41 @@ if __name__ == "__main__":
     #     method_a_name='physician',
     #     method_b_name='pops')
     #
-    # '''compare vmat vs imrt'''
+    # '''compare imrt vs vmat'''
     # compare_dvhs_and_stats(
-    #     method_a_path='./dvhs_and_stats/equispaced_coplanar/comparison_dict.npy',
-    #     method_b_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_a_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/equispaced_coplanar/comparison_dict.npy',
     #     method_a_name='pops',
     #     method_b_name='pops',
-    #     output_directory='./dvhs_and_stats/two_arc_coplanar_vmat/mo_vmat_vs_mo_imrt')
+    #     output_directory='./dvhs_and_stats/two_arc_coplanar_vmat/mo_imrt_vs_mo_vmat')
     # load_data_and_make_tables(
-    #     method_a_path='./dvhs_and_stats/equispaced_coplanar/comparison_dict.npy',
-    #     method_b_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_a_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/equispaced_coplanar/comparison_dict.npy',
+    #     method_a_name='pops',
+    #     method_b_name='pops')
+
+    # '''compare sport vs manual'''
+    # compare_dvhs_and_stats(
+    #     method_a_path='./dvhs_and_stats/sport/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/sport/comparison_dict.npy',
+    #     method_a_name='physician',
+    #     method_b_name='pops',
+    #     output_directory='./dvhs_and_stats/sport/mo_sport_vs_manual')
+    # load_data_and_make_tables(
+    #     method_a_path='./dvhs_and_stats/sport/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/sport/comparison_dict.npy',
+    #     method_a_name='physician',
+    #     method_b_name='pops')
+    #
+    # '''compare sport vs vmat'''
+    # compare_dvhs_and_stats(
+    #     method_a_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/sport/comparison_dict.npy',
+    #     method_a_name='pops',
+    #     method_b_name='pops',
+    #     output_directory='./dvhs_and_stats/sport/mo_sport_vs_mo_vmat')
+    # load_data_and_make_tables(
+    #     method_a_path='./dvhs_and_stats/two_arc_coplanar_vmat/comparison_dict.npy',
+    #     method_b_path='./dvhs_and_stats/sport/comparison_dict.npy',
     #     method_a_name='pops',
     #     method_b_name='pops')

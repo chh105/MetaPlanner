@@ -4,7 +4,7 @@
 
 This project explores the idea of using image retrieval, instead of end-to-end methods, to perform dose predictions. Given a new patient (query), we perform the task of retrieving treatment plans for similar patients from a database. The dose distribution of those retrieved patients can then be utilized in subsequent automated planning.
 
-If you find this project useful, please cite our [work]():
+If you find this project useful, please cite our [work](https://arxiv.org/abs/2206.02912):
 ```
 @misc{https://doi.org/10.48550/arxiv.2206.02912,
   doi = {10.48550/ARXIV.2206.02912},

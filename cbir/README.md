@@ -20,4 +20,4 @@ If you find this project useful, please cite our [work](https://arxiv.org/abs/22
 ```
 ---
 
-All source code for this project is provided under the terms of the GNU GENERAL PUBLIC LICENSE Version 3 (GPL v3). The precompiled mex files of the Ipopt optimizer in object code version are licensed under the Eclipse Public License Version 1.0 (EPL v1.0).
+All source code for this project is provided under the terms of the GNU GENERAL PUBLIC LICENSE Version 3 (GPL v3). 

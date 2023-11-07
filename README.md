@@ -37,3 +37,8 @@ Begin by storing your CT dicoms and RtSt dicoms into the following structure:
 	└── ...
 
 To run automated planning, simply modify and run [this](https://github.com/chh105/MetaPlanner/blob/main/head_and_neck_src/run_meta_optimization_framework.py) script for head and neck data, or [this](https://github.com/chh105/MetaPlanner/blob/main/prostate_src/run_meta_optimization_framework.py) script for prostate data.
+
+```
+Environment
+
+Please setup the environment using either the yml file or the copy [here](https://drive.google.com/file/d/12JXcyQg90emWFlAe_H8xPwKEhCy_3Fek/view?usp=drive_link).
